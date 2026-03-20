@@ -76,7 +76,7 @@ ECDSA key recovery: given a signature (r, s) and a message, you can compute the 
 
 Since the sighash depends on which UTXO is being spent, each spend recovers a *different* public key. But the signature is always the same: SHA256(preimage). No private key is ever involved.
 
-The sighash type is 0x02 (SIGHASH_NONE), which means the signature doesn't commit to the transaction's outputs. The spender can send the coins wherever they want.
+The sighash type happens to be 0x02 (SIGHASH_NONE), which means the signature doesn't commit to the transaction's outputs. The spender can send the coins wherever they want.
 
 
 ## The Mainnet Transaction
