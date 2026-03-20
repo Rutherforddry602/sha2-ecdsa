@@ -1,0 +1,52 @@
+[package]
+name = "sha2-ecdsa"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+hex = "0.4"
+clap = { version = "4", features = ["derive"] }
+tokio = { version = "1", features = ["full"] }
+axum = "0.7"
+reqwest = { version = "0.12", features = ["json"] }
+tracing = "0.1"
+tracing-subscriber = "0.3"
+bitcoin = { version = "0.32", features = ["rand-std"] }
+secp256k1 = { version = "0.29", features = ["recovery", "rand-std", "global-context"] }
+
+[target.'cfg(target_os = "macos")'.dependencies]
+metal = "0.29"
+objc = "0.2"
+
+[build-dependencies]
+cc = "1"
+
+[features]
+default = []
+cuda = []
+
+[[bin]]
+name = "grind"
+path = "src/bin/grind.rs"
+
+[[bin]]
+name = "coordinator"
+path = "src/bin/coordinator.rs"
+
+[[bin]]
+name = "worker"
+path = "src/bin/worker.rs"
+
+[[bin]]
+name = "diagnose"
+path = "src/bin/diagnose.rs"
+
+[[bin]]
+name = "address"
+path = "src/bin/address.rs"
+
+[[bin]]
+name = "spend"
+path = "src/bin/spend.rs"
